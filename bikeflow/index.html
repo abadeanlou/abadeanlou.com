@@ -61,6 +61,8 @@
     .axis-lbl { font-family: var(--sans); font-size: 10px; fill: var(--faint); }
     .series { stroke: var(--accent); stroke-width: 2; fill: none; }
     .area { fill: var(--accent); opacity: 0.08; }
+    .fline { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+    .fband { fill: var(--accent); opacity: 0.14; }
     .dot-map circle { stroke: var(--muted); stroke-opacity: 0.35; stroke-width: 0.6; }
     .map-box { height: 440px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
     .maplibregl-popup-content { font-family: var(--sans); font-size: 0.72rem;
@@ -139,6 +141,10 @@
       [data.totals.snapshots_24h.toLocaleString("en"), "snapshots · last 24 h"],
       [data.totals.days, "days collecting"],
     ];
+    if (data.model) {
+      const d = data.model.days_of_data;
+      tiles.push([d < 1 ? Math.round(d * 24) + " h" : d + " d", "model training data"]);
+    }
     document.getElementById("tiles").innerHTML = tiles.map(([n, l]) =>
       `<div class="tile"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join("");
 
@@ -147,7 +153,9 @@
       const sec = document.createElement("section");
       sec.className = "city";
       sec.innerHTML = `<h2>${CITY_NAMES[key] || key}</h2>`;
-      sec.appendChild(lineChart(c.series_24h, `Bikes available citywide <small>· trailing 24 h</small>`));
+      sec.appendChild(lineChart(c.series_24h,
+        `Bikes available citywide <small>· trailing 24 h${c.forecast ? " + forecast" : ""}</small>`,
+        c.forecast, data.model));
       const withCoords = c.latest.filter(e => e.lat !== undefined);
       if (withCoords.length > 10) sec.appendChild(mapPanel(key, withCoords));
       sec.appendChild(dataTable(c.series_24h));
@@ -161,13 +169,25 @@
       return d;
     }
 
-    function lineChart(series, title) {
+    function lineChart(series, title, forecast, model) {
       const p = panel(title);
       if (series.length < 2) { p.insertAdjacentHTML("beforeend", '<p class="legend-note">Not enough data yet — check back soon.</p>'); return p; }
       const W = 900, H = 240, M = { l: 44, r: 12, t: 10, b: 24 };
+
+      // Forecast points: anchor at the last actual, then +1h/+2h/+4h bands.
+      let fpts = [];
+      if (forecast && forecast["1h"]) {
+        const lastA = series[series.length - 1];
+        fpts = [{ t: lastA.t, p50: lastA.bikes_total, p15: lastA.bikes_total, p85: lastA.bikes_total }];
+        for (const [name, secs] of [["1h", 3600], ["2h", 7200], ["4h", 14400]]) {
+          if (forecast[name]) fpts.push({ t: forecast.t0 + secs, ...forecast[name] });
+        }
+      }
+
       const xs = series.map(d => d.t), ys = series.map(d => d.bikes_total);
-      const x0 = Math.min(...xs), x1 = Math.max(...xs);
-      const yMax = Math.max(...ys) * 1.08, yMin = Math.min(...ys) * 0.92;
+      const fy = fpts.flatMap(f => [f.p15, f.p85]);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs, ...fpts.map(f => f.t));
+      const yMax = Math.max(...ys, ...fy) * 1.08, yMin = Math.min(...ys, ...fy) * 0.92;
       const X = t => M.l + (t - x0) / (x1 - x0 || 1) * (W - M.l - M.r);
       const Y = v => H - M.b - (v - yMin) / (yMax - yMin || 1) * (H - M.t - M.b);
       const pts = series.map(d => `${X(d.t).toFixed(1)},${Y(d.bikes_total).toFixed(1)}`).join(" ");
@@ -180,11 +200,24 @@
           ${gridY.map(v => `<line class="grid-line" x1="${M.l}" x2="${W - M.r}" y1="${Y(v)}" y2="${Y(v)}"/>
             <text class="axis-lbl" x="${M.l - 6}" y="${Y(v) + 3}" text-anchor="end">${Math.round(v).toLocaleString("en")}</text>`).join("")}
           ${hourTicks.map(t => `<text class="axis-lbl" x="${X(t)}" y="${H - 8}" text-anchor="middle">${fmt(t * 1000)}</text>`).join("")}
-          <polygon class="area" points="${M.l},${Y(yMin)} ${pts} ${W - M.r},${Y(yMin)}"/>
+          <polygon class="area" points="${M.l},${Y(yMin)} ${pts} ${X(series[series.length - 1].t)},${Y(yMin)}"/>
           <polyline class="series" points="${pts}"/>
+          ${fpts.length > 1 ? `
+            <polygon class="fband" points="${
+              fpts.map(f => `${X(f.t).toFixed(1)},${Y(f.p85).toFixed(1)}`).join(" ")} ${
+              [...fpts].reverse().map(f => `${X(f.t).toFixed(1)},${Y(f.p15).toFixed(1)}`).join(" ")}"/>
+            <polyline class="fline" points="${
+              fpts.map(f => `${X(f.t).toFixed(1)},${Y(f.p50).toFixed(1)}`).join(" ")}"/>` : ""}
           <line class="crosshair" y1="${M.t}" y2="${H - M.b}"/>
           <rect class="hover" x="${M.l}" y="${M.t}" width="${W - M.l - M.r}" height="${H - M.t - M.b}" fill="transparent"/>
         </svg>`);
+      if (fpts.length > 1 && model) {
+        const h1 = model.horizons && model.horizons["1h"];
+        p.insertAdjacentHTML("beforeend",
+          `<p class="legend-note">dashed = model forecast with P15–P85 band · trained on ${
+            model.days_of_data < 1 ? Math.round(model.days_of_data * 24) + " hours" : model.days_of_data + " days"} of data${
+            h1 ? ` · +1 h MAE ${h1.mae_model} bikes/station (persistence baseline ${h1.mae_persistence})` : ""}</p>`);
+      }
       const svg = p.querySelector("svg"), ch = svg.querySelector(".crosshair");
       svg.querySelector(".hover").addEventListener("mousemove", ev => {
         const r = svg.getBoundingClientRect();
@@ -247,6 +280,7 @@
               type: "Feature",
               geometry: { type: "Point", coordinates: [s.lon, s.lat] },
               properties: { id: s.id, bikes: s.bikes, docks: s.docks,
+                            f1: s.f1 ?? null,
                             f: (s.bikes + s.docks) > 0 ? s.bikes / (s.bikes + s.docks) : 0 },
             })),
           },
@@ -266,7 +300,8 @@
           const pr = ev.features[0].properties;
           new maplibregl.Popup({ closeButton: false })
             .setLngLat(ev.features[0].geometry.coordinates)
-            .setHTML(`<strong>Station ${pr.id}</strong><br>${pr.bikes} bikes · ${pr.docks} docks free`)
+            .setHTML(`<strong>Station ${pr.id}</strong><br>${pr.bikes} bikes · ${pr.docks} docks free${
+              pr.f1 !== null && pr.f1 !== "null" ? `<br>model: ≈${Math.round(pr.f1)} bikes in 1 h` : ""}`)
             .addTo(map);
         });
         map.on("mouseenter", "stations", () => map.getCanvas().style.cursor = "pointer");
