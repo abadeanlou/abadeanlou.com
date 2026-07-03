@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="bikeflow — live bike-share availability for Milan and Paris, collected and published by an open data pipeline.">
+  <title>bikeflow — live bike-share dashboard</title>
+  <link rel="canonical" href="https://abadeanlou.com/bikeflow/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%238a6d3b'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23faf8f5' text-anchor='middle'%3Ebf%3C/text%3E%3C/svg%3E">
+  <script>
+    // Same theme key as abadeanlou.com so the preference carries across.
+    document.documentElement.dataset.theme =
+      localStorage.getItem('theme') ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  </script>
+  <style>
+    :root {
+      --bg: #faf8f5; --card: #ffffff; --ink: #2b2b2b; --muted: #6b6b6b;
+      --faint: #9a9a9a; --accent: #8a6d3b; --border: #e8e2d9;
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: Verdana, Geneva, sans-serif;
+      color-scheme: light;
+    }
+    [data-theme="dark"] {
+      --bg: #201d19; --card: #2a2622; --ink: #e8e2d9; --muted: #a89f92;
+      --faint: #7d766c; --accent: #c9a05e; --border: #3a352e;
+      color-scheme: dark;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--serif); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    header h1 { font-weight: normal; font-size: 2rem; }
+    .kicker { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+    .updated { font-family: var(--sans); font-size: 0.75rem; color: var(--faint); margin-top: 0.5rem; }
+    .stale { background: var(--card); border: 1px solid var(--accent); border-radius: 4px;
+      font-family: var(--sans); font-size: 0.8rem; padding: 0.7rem 1rem; margin-top: 1rem; display: none; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem; margin: 2rem 0 2.5rem; }
+    .tile { background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+      padding: 1rem 1.2rem; }
+    .tile .num { font-size: 1.9rem; line-height: 1.2; }
+    .tile .lbl { font-family: var(--sans); font-size: 0.68rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+    section.city { margin-top: 2.5rem; }
+    h2 { font-family: var(--sans); font-size: 0.8rem; font-weight: normal; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem; margin-bottom: 1.2rem; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+      padding: 1.2rem; margin-bottom: 1.2rem; }
+    .panel h3 { font-size: 1rem; font-weight: normal; margin-bottom: 0.8rem; }
+    .panel h3 small { font-family: var(--sans); font-size: 0.7rem; color: var(--faint); }
+    svg { display: block; width: 100%; height: auto; }
+    .grid-line { stroke: var(--border); stroke-width: 1; }
+    .axis-lbl { font-family: var(--sans); font-size: 10px; fill: var(--faint); }
+    .series { stroke: var(--accent); stroke-width: 2; fill: none; }
+    .area { fill: var(--accent); opacity: 0.08; }
+    .dot-map circle { stroke: var(--muted); stroke-opacity: 0.35; stroke-width: 0.6; }
+    .tooltip { position: fixed; pointer-events: none; background: var(--card); color: var(--ink);
+      border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans);
+      font-size: 0.72rem; padding: 0.35rem 0.55rem; display: none; z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .crosshair { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; display: none; }
+    .legend-note { font-family: var(--sans); font-size: 0.7rem; color: var(--faint); margin-top: 0.6rem; }
+    .ramp { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+      margin: 0 2px -1px 6px; border: 1px solid var(--border); }
+    details { margin-top: 0.8rem; font-family: var(--sans); font-size: 0.75rem; }
+    details summary { color: var(--muted); cursor: pointer; }
+    details table { border-collapse: collapse; margin-top: 0.6rem; }
+    details td, details th { border: 1px solid var(--border); padding: 0.25rem 0.6rem; text-align: right; }
+    footer { margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 1.2rem;
+      font-size: 0.9rem; color: var(--muted); }
+    footer a { color: var(--accent); }
+    @media (max-width: 640px) { .wrap { padding: 2rem 1rem 3rem; } header h1 { font-size: 1.6rem; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="kicker">bikeflow · open data pipeline</p>
+      <h1>Bike-share availability, live-ish</h1>
+      <p class="updated" id="updated">loading…</p>
+      <p class="stale" id="stale">⚠ This data is more than 2 hours old — the publisher may be down. The pipeline reports its own staleness rather than hiding it.</p>
+    </header>
+
+    <div class="tiles" id="tiles"></div>
+    <div id="cities"></div>
+
+    <footer>
+      <p>Every 3 minutes, a collector on a GCP VM polls the public GBFS feeds of
+      <strong>BikeMi (Milan)</strong> and <strong>Vélib' (Paris)</strong> into partitioned Parquet.
+      Apache Airflow compacts each finished day, backs everything up to Cloud Storage,
+      watches freshness, and publishes this page's data hourly. Built by
+      <a href="https://abadeanlou.com/">Amirhesam Badeanlou</a> as a fully open,
+      end-to-end data engineering project.</p>
+    </footer>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+  (async function () {
+    const DEFAULT_SRC = "https://raw.githubusercontent.com/abadeanlou/bikeflow-live/master/data.json";
+    const src = new URLSearchParams(location.search).get("src") || DEFAULT_SRC;
+    const RAMP_LIGHT = ["#e8dcc8", "#cdb289", "#ab8a56", "#8a6d3b", "#5f4a26"];
+    const RAMP_DARK  = ["#4a3a22", "#6b5433", "#8a6d3b", "#b08f55", "#d4b57e"];
+    const ramp = () => document.documentElement.dataset.theme === "dark" ? RAMP_DARK : RAMP_LIGHT;
+    const CITY_NAMES = { milan: "Milan · BikeMi", paris: "Paris · Vélib'" };
+    const tooltip = document.getElementById("tooltip");
+
+    let data;
+    try {
+      data = await (await fetch(src, { cache: "no-store" })).json();
+    } catch (e) {
+      document.getElementById("updated").textContent = "Could not load data — try again shortly.";
+      return;
+    }
+
+    const genMs = data.generated_at * 1000;
+    const fmt = ts => new Date(ts).toISOString().slice(11, 16) + " UTC";
+    document.getElementById("updated").textContent =
+      "Last updated " + new Date(genMs).toISOString().replace("T", " ").slice(0, 16) + " UTC · refreshes hourly";
+    if (Date.now() - genMs > 2 * 3600e3) document.getElementById("stale").style.display = "block";
+
+    const cities = Object.entries(data.cities).filter(([, c]) => c.stations > 0);
+    const bikesNow = cities.reduce((s, [, c]) => s + c.latest.reduce((a, e) => a + e.bikes, 0), 0);
+    const tiles = [
+      [cities.reduce((s, [, c]) => s + c.stations, 0), "stations tracked"],
+      [bikesNow.toLocaleString("en"), "bikes available now"],
+      [data.totals.snapshots_24h.toLocaleString("en"), "snapshots · last 24 h"],
+      [data.totals.days, "days collecting"],
+    ];
+    document.getElementById("tiles").innerHTML = tiles.map(([n, l]) =>
+      `<div class="tile"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join("");
+
+    const citiesEl = document.getElementById("cities");
+    for (const [key, c] of cities) {
+      const sec = document.createElement("section");
+      sec.className = "city";
+      sec.innerHTML = `<h2>${CITY_NAMES[key] || key}</h2>`;
+      sec.appendChild(lineChart(c.series_24h, `Bikes available citywide <small>· trailing 24 h</small>`));
+      const withCoords = c.latest.filter(e => e.lat !== undefined);
+      if (withCoords.length > 10) sec.appendChild(dotMap(withCoords));
+      sec.appendChild(dataTable(c.series_24h));
+      citiesEl.appendChild(sec);
+    }
+
+    function panel(title) {
+      const d = document.createElement("div");
+      d.className = "panel";
+      d.innerHTML = `<h3>${title}</h3>`;
+      return d;
+    }
+
+    function lineChart(series, title) {
+      const p = panel(title);
+      if (series.length < 2) { p.insertAdjacentHTML("beforeend", '<p class="legend-note">Not enough data yet — check back soon.</p>'); return p; }
+      const W = 900, H = 240, M = { l: 44, r: 12, t: 10, b: 24 };
+      const xs = series.map(d => d.t), ys = series.map(d => d.bikes_total);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      const yMax = Math.max(...ys) * 1.08, yMin = Math.min(...ys) * 0.92;
+      const X = t => M.l + (t - x0) / (x1 - x0 || 1) * (W - M.l - M.r);
+      const Y = v => H - M.b - (v - yMin) / (yMax - yMin || 1) * (H - M.t - M.b);
+      const pts = series.map(d => `${X(d.t).toFixed(1)},${Y(d.bikes_total).toFixed(1)}`).join(" ");
+      const gridY = [0.25, 0.5, 0.75].map(f => yMin + f * (yMax - yMin));
+      const hourTicks = [];
+      for (let t = Math.ceil(x0 / 21600) * 21600; t <= x1; t += 21600) hourTicks.push(t); // every 6 h
+      const svgNS = "http://www.w3.org/2000/svg";
+      p.insertAdjacentHTML("beforeend", `
+        <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Citywide bikes available over the last 24 hours">
+          ${gridY.map(v => `<line class="grid-line" x1="${M.l}" x2="${W - M.r}" y1="${Y(v)}" y2="${Y(v)}"/>
+            <text class="axis-lbl" x="${M.l - 6}" y="${Y(v) + 3}" text-anchor="end">${Math.round(v).toLocaleString("en")}</text>`).join("")}
+          ${hourTicks.map(t => `<text class="axis-lbl" x="${X(t)}" y="${H - 8}" text-anchor="middle">${fmt(t * 1000)}</text>`).join("")}
+          <polygon class="area" points="${M.l},${Y(yMin)} ${pts} ${W - M.r},${Y(yMin)}"/>
+          <polyline class="series" points="${pts}"/>
+          <line class="crosshair" y1="${M.t}" y2="${H - M.b}"/>
+          <rect class="hover" x="${M.l}" y="${M.t}" width="${W - M.l - M.r}" height="${H - M.t - M.b}" fill="transparent"/>
+        </svg>`);
+      const svg = p.querySelector("svg"), ch = svg.querySelector(".crosshair");
+      svg.querySelector(".hover").addEventListener("mousemove", ev => {
+        const r = svg.getBoundingClientRect();
+        const t = x0 + ((ev.clientX - r.left) / r.width * W - M.l) / (W - M.l - M.r) * (x1 - x0);
+        let best = series[0];
+        for (const d of series) if (Math.abs(d.t - t) < Math.abs(best.t - t)) best = d;
+        ch.setAttribute("x1", X(best.t)); ch.setAttribute("x2", X(best.t));
+        ch.style.display = "block";
+        tooltip.style.display = "block";
+        tooltip.innerHTML = `<strong>${best.bikes_total.toLocaleString("en")}</strong> bikes · ${fmt(best.t * 1000)}`;
+        tooltip.style.left = Math.min(ev.clientX + 12, innerWidth - 150) + "px";
+        tooltip.style.top = (ev.clientY - 34) + "px";
+      });
+      svg.addEventListener("mouseleave", () => { ch.style.display = "none"; tooltip.style.display = "none"; });
+      return p;
+    }
+
+    function dotMap(stations) {
+      const p = panel(`Stations right now <small>· colored by fill level</small>`);
+      const lats = stations.map(s => s.lat), lons = stations.map(s => s.lon);
+      const la0 = Math.min(...lats), la1 = Math.max(...lats);
+      const lo0 = Math.min(...lons), lo1 = Math.max(...lons);
+      const W = 900, H = 460, M = 16;
+      // Equirectangular with latitude correction so the city isn't squashed.
+      const k = Math.cos((la0 + la1) / 2 * Math.PI / 180);
+      const spanX = (lo1 - lo0) * k, spanY = la1 - la0;
+      const scale = Math.min((W - 2 * M) / (spanX || 1), (H - 2 * M) / (spanY || 1));
+      const X = lon => W / 2 + ((lon - (lo0 + lo1) / 2) * k) * scale;
+      const Y = lat => H / 2 - (lat - (la0 + la1) / 2) * scale;
+      const colors = ramp();
+      const color = s => {
+        const cap = s.bikes + s.docks;
+        const f = cap > 0 ? s.bikes / cap : 0;
+        return colors[Math.min(colors.length - 1, Math.floor(f * colors.length))];
+      };
+      const dots = stations.map(s =>
+        `<circle cx="${X(s.lon).toFixed(1)}" cy="${Y(s.lat).toFixed(1)}" r="4" fill="${color(s)}">
+           <title>Station ${s.id}: ${s.bikes} bikes, ${s.docks} docks</title></circle>`).join("");
+      p.insertAdjacentHTML("beforeend",
+        `<svg class="dot-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Map of stations colored by bikes available">${dots}</svg>
+         <p class="legend-note">empty${colors.map(c => `<span class="ramp" style="background:${c}"></span>`).join("")} full
+         · hover a station for details</p>`);
+      return p;
+    }
+
+    function dataTable(series) {
+      const d = document.createElement("details");
+      const hourly = series.filter((_, i) => i % 4 === 0);
+      d.innerHTML = `<summary>Data table (hourly)</summary>
+        <table><tr><th>time (UTC)</th><th>bikes available</th></tr>
+        ${hourly.map(r => `<tr><td>${fmt(r.t * 1000)}</td><td>${r.bikes_total.toLocaleString("en")}</td></tr>`).join("")}
+        </table>`;
+      return d;
+    }
+  })();
+  </script>
+</body>
+</html>
