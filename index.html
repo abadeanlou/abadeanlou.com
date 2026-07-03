@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Amirhesam Badeanlou — AI & Data Engineer in Milan. Production machine learning, real-time data pipelines, and geospatial systems for urban mobility.">
+  <title>Amirhesam Badeanlou — AI &amp; Data Engineer</title>
+  <link rel="canonical" href="https://abadeanlou.com/">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
+  <meta property="og:description" content="Production machine learning, real-time data pipelines, and geospatial systems for urban mobility. Based in Milan.">
+  <meta property="og:url" content="https://abadeanlou.com/">
+  <meta property="og:image" content="https://abadeanlou.com/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
+  <meta name="twitter:description" content="Production machine learning, real-time data pipelines, and geospatial systems for urban mobility. Based in Milan.">
+  <meta name="twitter:image" content="https://abadeanlou.com/social-card.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amirhesam Badeanlou",
+    "jobTitle": "AI & Data Engineer",
+    "worksFor": { "@type": "Organization", "name": "CitiEU — CitiME" },
+    "address": { "@type": "PostalAddress", "addressLocality": "Milan", "addressCountry": "IT" },
+    "alumniOf": [
+      { "@type": "CollegeOrUniversity", "name": "Politecnico di Torino" },
+      { "@type": "CollegeOrUniversity", "name": "Sharif University of Technology" }
+    ],
+    "url": "https://abadeanlou.com/",
+    "sameAs": [
+      "https://github.com/abadeanlou",
+      "https://www.linkedin.com/in/abadeanlou/",
+      "https://scholar.google.com/citations?hl=en&user=wJTLpQIAAAAJ"
+    ]
+  }
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%238a6d3b'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23faf8f5' text-anchor='middle'%3EAB%3C/text%3E%3C/svg%3E">
+  <script>
+    // Apply saved or system theme before first paint to avoid a flash.
+    document.documentElement.dataset.theme =
+      localStorage.getItem('theme') ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  </script>
+  <link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+  <div class="page">
+
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+        <h1>Amirhesam <br>Badeanlou</h1>
+        <p class="tagline">AI &amp; Data Engineer</p>
+        <p class="tagline-sub">Machine learning systems · Data pipelines · Geospatial</p>
+        <p class="location">Milan, Italy</p>
+
+        <div class="theme-switch" role="group" aria-label="Color theme">
+          <button type="button" class="seg-light" aria-pressed="true">Light</button>
+          <button type="button" class="seg-dark" aria-pressed="false">Dark</button>
+        </div>
+
+        <nav class="site-nav" aria-label="Section navigation">
+          <a href="#about" class="nav-link">About</a>
+          <a href="#experience" class="nav-link">Experience</a>
+          <a href="#projects" class="nav-link">Projects</a>
+          <a href="#publications" class="nav-link">Publications</a>
+          <a href="#skills" class="nav-link">Skills</a>
+          <a href="#education" class="nav-link">Education</a>
+          <a href="#certifications" class="nav-link">Certifications</a>
+        </nav>
+
+        <div class="social">
+          <a href="https://github.com/abadeanlou" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/abadeanlou/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://scholar.google.com/citations?hl=en&amp;user=wJTLpQIAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+        </div>
+
+        <p class="languages">English · Italian · Persian</p>
+      </div>
+    </aside>
+
+    <main class="content">
+
+      <section id="about">
+        <h2>About</h2>
+        <p>
+          I build production machine-learning and data systems: forecasting models,
+          real-time pipelines, and the cloud platforms that run them. At CitiEU &mdash; CitiME in
+          Milan I built and operate a traffic-forecasting platform end to end &mdash;
+          a LightGBM system predicting travel times up to 4 hours ahead, a real-time
+          ingestion layer processing ~27M rows/day into TimescaleDB, and LLM-generated
+          reporting &mdash; deployed on GCP with CI/CD.
+        </p>
+        <p>
+          Before that, I researched public transit equity at Institut Polytechnique
+          de Paris, published as first author at hEART 2022 and TRB 2023.
+        </p>
+      </section>
+
+      <section id="experience">
+        <h2>Experience</h2>
+
+        <article class="job">
+          <header>
+            <h3>Transportation Data &amp; Modelling Specialist</h3>
+            <p class="job-meta">CitiEU — CitiME · Milan, Italy · <span class="dates">Mar 2023 – Present</span></p>
+          </header>
+          <ul>
+            <li>Designed and operate a <strong>hybrid ML forecasting system</strong> &mdash; a global
+              LightGBM model trained on pooled route history (~1.5&ndash;3M observations) blended
+              with per-route specialist models by recent accuracy &mdash; predicting route travel
+              times 15 min to 4 h ahead: <strong>~1.7 min MAE</strong> at 15-minute lead,
+              <strong>16&ndash;50% better</strong> than a typical-day baseline, with quantile +
+              conformal-calibrated P15&ndash;P85 uncertainty bands (~80&ndash;85% empirical coverage).</li>
+            <li>Own the full <strong>ML lifecycle in production</strong>: nightly automated retraining,
+              every forecast graded continuously against actuals per route, lead time, and model
+              variant, and cold-start handling for new routes through the global model.</li>
+            <li>Built the platform's <strong>real-time ingestion layer</strong>: ~27M rows/day of
+              per-minute traffic telemetry into PostgreSQL/TimescaleDB &mdash; hypertables with
+              columnar compression (371 GB logical stored in 137 GB) and continuous aggregates
+              that keep month-scale analytics off the raw data.</li>
+            <li>Run three <strong>GCP environments</strong> (production, staging, delivery) with
+              GitHub Actions CI/CD: health-gated auto-deploys, PR tests against a real TimescaleDB
+              service container (~75 Node test files), Secret Manager for all credentials, and
+              idempotent SQL migrations on every deploy.</li>
+            <li>Integrated the <strong>Anthropic API</strong> for AI-generated traffic incident and
+              trend reports, and built a bash multi-agent audit framework (Claude + Codex) running
+              8+ specialised review roles per script for code, UI/UX, and performance audits.</li>
+            <li>Migrated a legacy Cube Voyager transport model to CubePy, cutting end-to-end
+              runtime by <strong>40%</strong> on the Abu Dhabi Mobility model, and trained
+              <strong>50+ modellers</strong> on the new stack.</li>
+          </ul>
+        </article>
+
+        <article class="job">
+          <header>
+            <h3>Research Assistant (Data Science)</h3>
+            <p class="job-meta">Institut Polytechnique de Paris — LINCS Lab · Paris, France · <span class="dates">Nov 2021 – Nov 2022</span></p>
+          </header>
+          <ul>
+            <li>Built a Python pipeline ingesting multi-city GTFS feeds into MongoDB and computing
+              accessibility metrics (Lorenz curves, Gini indices) entirely from open data.</li>
+            <li>Contributed to the French ANR MuTAS project (ANR-21-CE22-0025-01); output published
+              at hEART 2022 and TRB 2023 as first author.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <div class="project-grid">
+          <article class="project">
+            <h3>IntelligentMobilityHub</h3>
+            <p class="project-org">Production ML &amp; data platform · CitiEU &mdash; CitiME</p>
+            <p>Traffic-forecasting platform run in production: per-minute telemetry (~27M rows/day)
+              ingested into TimescaleDB, a FastAPI/LightGBM service forecasting travel times up to
+              4 h ahead with calibrated uncertainty bands, MapLibre GL live map, and
+              Anthropic-API-generated reports &mdash; deployed on GCP with health-gated
+              GitHub Actions CI/CD.</p>
+            <p class="tags"><span>LightGBM</span><span>TimescaleDB</span><span>FastAPI</span><span>GCP</span><span>GitHub Actions</span></p>
+          </article>
+
+          <article class="project">
+            <h3>Abu Dhabi Mobility Model</h3>
+            <p class="project-org">Migration &amp; performance · CitiEU &mdash; CitiME</p>
+            <p>Ported Voyager scripts to CubePy and resolved an ArcGIS Engine dependency blocking
+              the model on newer environments; cut end-to-end runtime by 40% and trained 50+
+              modellers on the migrated stack.</p>
+            <p class="tags"><span>CubePy</span><span>Cube Voyager</span><span>Python</span></p>
+          </article>
+
+          <article class="project">
+            <h3>Public Transit Equity Analysis</h3>
+            <p class="project-org">Research · IP Paris</p>
+            <p>Stored and queried multi-city GTFS feeds in MongoDB; computed Gini- and Lorenz-based
+              equity scores at the transit-line level using open data only. Output: two first-author
+              conference papers.</p>
+            <p class="tags"><span>Python</span><span>MongoDB</span><span>GTFS</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="publications">
+        <h2>Publications</h2>
+
+        <article class="publication">
+          <h3><a href="https://arxiv.org/abs/2206.09037" target="_blank" rel="noopener">Assessing Transportation Accessibility Equity via Open Data</a></h3>
+          <p class="pub-meta"><strong>Badeanlou, A.</strong>, Araldo, A., Diana, M. · hEART Conference 2022</p>
+          <p>A fully automated methodology to measure transportation accessibility inequity using
+            Lorenz curves and Gini indices, relying solely on open data — demonstrated on four
+            cities and compared with existing approaches.</p>
+        </article>
+
+        <article class="publication">
+          <h3><a href="https://arxiv.org/abs/2210.00128" target="_blank" rel="noopener">Equity Scores for Public Transit Lines from Open Data and Accessibility Measures</a></h3>
+          <p class="pub-meta"><strong>Badeanlou, A.</strong>, Araldo, A., Diana, M., Gauthier, V. · Transportation Research Board (TRB) 2023</p>
+          <p>An equity scoring system for public transit lines aimed at reducing car dependency in
+            underserved areas — measuring and improving accessibility equity across seven cities
+            from open data, to guide large-scale transit optimization.</p>
+        </article>
+      </section>
+
+      <section id="skills">
+        <h2>Skills</h2>
+
+        <dl class="skills">
+          <div class="skill-group">
+            <dt>Machine Learning &amp; AI</dt>
+            <dd><span>LightGBM</span><span>Quantile regression</span><span>Conformal calibration</span><span>Feature engineering</span><span>Model monitoring</span><span>Anthropic API</span><span>Claude Code / MCP</span></dd>
+          </div>
+          <div class="skill-group">
+            <dt>Data Engineering</dt>
+            <dd><span>PostgreSQL</span><span>TimescaleDB</span><span>Real-time ingestion</span><span>ETL/ELT</span><span>REST APIs</span><span>MongoDB</span><span>SQLite</span></dd>
+          </div>
+          <div class="skill-group">
+            <dt>Cloud &amp; DevOps</dt>
+            <dd><span>GCP Compute Engine</span><span>Secret Manager</span><span>BigQuery</span><span>GitHub Actions CI/CD</span><span>pm2</span><span>Bash</span></dd>
+          </div>
+          <div class="skill-group">
+            <dt>Programming</dt>
+            <dd><span>Python</span><span>pandas</span><span>NumPy</span><span>GeoPandas</span><span>SQL</span><span>JavaScript</span><span>Node.js</span><span>FastAPI</span></dd>
+          </div>
+          <div class="skill-group">
+            <dt>Geospatial &amp; Visualisation</dt>
+            <dd><span>MapLibre GL</span><span>QGIS</span><span>ArcGIS</span><span>GTFS</span><span>Dashboards</span></dd>
+          </div>
+          <div class="skill-group">
+            <dt>Transport Modelling (domain)</dt>
+            <dd><span>OpenPaths CUBE</span><span>CubePy</span><span>Aimsun</span><span>Four-step modelling</span></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section id="education">
+        <h2>Education &amp; Honors</h2>
+
+        <article class="edu">
+          <h3>Politecnico di Torino</h3>
+          <p class="edu-meta">M.Sc. Civil Engineering — Infrastructures &amp; Transportation Systems · Turin, Italy · <span class="dates">2019 – 2022</span></p>
+        </article>
+
+        <article class="edu">
+          <h3>Sharif University of Technology</h3>
+          <p class="edu-meta">B.Sc. Civil Engineering · Tehran, Iran · <span class="dates">2015 – 2019</span></p>
+        </article>
+
+        <ul class="honors">
+          <li><strong>Rapid promotion</strong> — promoted to Abu Dhabi Mobility Transport Modeller within 12 months (typical track: 3 years).</li>
+          <li><strong>Full M.Sc. scholarship</strong> — awarded for the duration of the Politecnico di Torino programme.</li>
+          <li><strong>Research grants</strong> — funding secured from three independent sources for the Paris-based master's thesis.</li>
+          <li><strong>Conference presentation</strong> — presented first-author work at hEART 2022.</li>
+        </ul>
+
+      </section>
+
+      <section id="certifications">
+        <h2>Certifications</h2>
+        <ul class="certs">
+          <li><a href="https://www.coursera.org/account/accomplishments/specialization/A2K8R7UR4C8W" target="_blank" rel="noopener">Machine Learning Specialization</a> · Coursera</li>
+          <li><a href="https://www.coursera.org/account/accomplishments/professional-cert/JC6BYH6BKVP2" target="_blank" rel="noopener">Google Data Analytics</a> · Coursera</li>
+          <li>Advanced Cube Voyager Scripting</li>
+          <li>Aimsun Core Skills</li>
+          <li>Introduction to LEGION</li>
+        </ul>
+      </section>
+
+      <footer>
+        <p>&copy; 2026 Amirhesam Badeanlou · Built with plain HTML &amp; CSS, hosted on GitHub Pages.</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <script defer src="script.js?v=6"></script>
+</body>
+</html>
