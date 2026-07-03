@@ -13,6 +13,12 @@
       localStorage.getItem('theme') ||
       (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   </script>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css"
+        integrity="sha384-uTttxo/aOKbdE5RlD/SPzSDoDmNvGlUYPjONi2MN/b7c9HPSvW07OIuyP7uL6jxK"
+        crossorigin="anonymous">
+  <script defer src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"
+          integrity="sha384-5+cfbwT0iiub6VsQAdn6yz16nr6sDiQoHx6tm4O8OVYXHYOxcffFmCJBL0dgdvGp"
+          crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #faf8f5; --card: #ffffff; --ink: #2b2b2b; --muted: #6b6b6b;
@@ -56,6 +62,10 @@
     .series { stroke: var(--accent); stroke-width: 2; fill: none; }
     .area { fill: var(--accent); opacity: 0.08; }
     .dot-map circle { stroke: var(--muted); stroke-opacity: 0.35; stroke-width: 0.6; }
+    .map-box { height: 440px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .maplibregl-popup-content { font-family: var(--sans); font-size: 0.72rem;
+      background: var(--card); color: var(--ink); border: 1px solid var(--border); }
+    .maplibregl-popup-tip { border-top-color: var(--card) !important; }
     .tooltip { position: fixed; pointer-events: none; background: var(--card); color: var(--ink);
       border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans);
       font-size: 0.72rem; padding: 0.35rem 0.55rem; display: none; z-index: 10;
@@ -139,7 +149,7 @@
       sec.innerHTML = `<h2>${CITY_NAMES[key] || key}</h2>`;
       sec.appendChild(lineChart(c.series_24h, `Bikes available citywide <small>· trailing 24 h</small>`));
       const withCoords = c.latest.filter(e => e.lat !== undefined);
-      if (withCoords.length > 10) sec.appendChild(dotMap(withCoords));
+      if (withCoords.length > 10) sec.appendChild(mapPanel(key, withCoords));
       sec.appendChild(dataTable(c.series_24h));
       citiesEl.appendChild(sec);
     }
@@ -192,8 +202,80 @@
       return p;
     }
 
-    function dotMap(stations) {
+    function mapPanel(cityKey, stations) {
       const p = panel(`Stations right now <small>· colored by fill level</small>`);
+      const box = document.createElement("div");
+      box.className = "map-box";
+      box.id = `map-${cityKey}`;
+      p.appendChild(box);
+      const colors = ramp();
+      p.insertAdjacentHTML("beforeend",
+        `<p class="legend-note">empty${colors.map(c => `<span class="ramp" style="background:${c}"></span>`).join("")} full
+         · click a station for details</p>`);
+      whenMapLibreReady(
+        () => buildRealMap(box, stations, colors),
+        () => { box.remove(); p.insertBefore(svgFallbackMap(stations, colors), p.querySelector(".legend-note")); }
+      );
+      return p;
+    }
+
+    function whenMapLibreReady(ok, fallback) {
+      if (window.maplibregl) return ok();
+      window.addEventListener("load", () => window.maplibregl ? ok() : fallback());
+    }
+
+    function buildRealMap(container, stations, colors) {
+      const dark = document.documentElement.dataset.theme === "dark";
+      const lats = stations.map(s => s.lat), lons = stations.map(s => s.lon);
+      const bounds = [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]];
+      const map = new maplibregl.Map({
+        container,
+        style: `https://tiles.openfreemap.org/styles/${dark ? "dark" : "positron"}`,
+        bounds, fitBoundsOptions: { padding: 28 },
+        attributionControl: { compact: true },
+        cooperativeGestures: true,
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+      // Heal any wrong initial canvas size (container measured mid-layout).
+      new ResizeObserver(() => map.resize()).observe(container);
+      map.on("load", () => {
+        map.addSource("stations", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: stations.map(s => ({
+              type: "Feature",
+              geometry: { type: "Point", coordinates: [s.lon, s.lat] },
+              properties: { id: s.id, bikes: s.bikes, docks: s.docks,
+                            f: (s.bikes + s.docks) > 0 ? s.bikes / (s.bikes + s.docks) : 0 },
+            })),
+          },
+        });
+        map.addLayer({
+          id: "stations", type: "circle", source: "stations",
+          paint: {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 7],
+            "circle-color": ["interpolate", ["linear"], ["get", "f"],
+              0, colors[0], 0.25, colors[1], 0.5, colors[2], 0.75, colors[3], 1, colors[4]],
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": dark ? "#141210" : "#ffffff",
+            "circle-stroke-opacity": 0.9,
+          },
+        });
+        map.on("click", "stations", ev => {
+          const pr = ev.features[0].properties;
+          new maplibregl.Popup({ closeButton: false })
+            .setLngLat(ev.features[0].geometry.coordinates)
+            .setHTML(`<strong>Station ${pr.id}</strong><br>${pr.bikes} bikes · ${pr.docks} docks free`)
+            .addTo(map);
+        });
+        map.on("mouseenter", "stations", () => map.getCanvas().style.cursor = "pointer");
+        map.on("mouseleave", "stations", () => map.getCanvas().style.cursor = "");
+      });
+    }
+
+    function svgFallbackMap(stations, colors) {
+      const holder = document.createElement("div");
       const lats = stations.map(s => s.lat), lons = stations.map(s => s.lon);
       const la0 = Math.min(...lats), la1 = Math.max(...lats);
       const lo0 = Math.min(...lons), lo1 = Math.max(...lons);
@@ -204,7 +286,6 @@
       const scale = Math.min((W - 2 * M) / (spanX || 1), (H - 2 * M) / (spanY || 1));
       const X = lon => W / 2 + ((lon - (lo0 + lo1) / 2) * k) * scale;
       const Y = lat => H / 2 - (lat - (la0 + la1) / 2) * scale;
-      const colors = ramp();
       const color = s => {
         const cap = s.bikes + s.docks;
         const f = cap > 0 ? s.bikes / cap : 0;
@@ -213,11 +294,9 @@
       const dots = stations.map(s =>
         `<circle cx="${X(s.lon).toFixed(1)}" cy="${Y(s.lat).toFixed(1)}" r="4" fill="${color(s)}">
            <title>Station ${s.id}: ${s.bikes} bikes, ${s.docks} docks</title></circle>`).join("");
-      p.insertAdjacentHTML("beforeend",
-        `<svg class="dot-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Map of stations colored by bikes available">${dots}</svg>
-         <p class="legend-note">empty${colors.map(c => `<span class="ramp" style="background:${c}"></span>`).join("")} full
-         · hover a station for details</p>`);
-      return p;
+      holder.innerHTML =
+        `<svg class="dot-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Map of stations colored by bikes available">${dots}</svg>`;
+      return holder;
     }
 
     function dataTable(series) {
