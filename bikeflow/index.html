@@ -92,7 +92,7 @@
       <p class="kicker">bikeflow · open data pipeline</p>
       <h1>Bike-share availability, live-ish</h1>
       <p class="updated" id="updated">loading…</p>
-      <p class="stale" id="stale">⚠ This data is more than 2 hours old — the publisher may be down. The pipeline reports its own staleness rather than hiding it.</p>
+      <p class="stale" id="stale">⚠ This data is more than 30 minutes old — the publisher may be down. The pipeline reports its own staleness rather than hiding it.</p>
     </header>
 
     <div class="tiles" id="tiles"></div>
@@ -111,8 +111,11 @@
 
   <script>
   (async function () {
-    const DEFAULT_SRC = "https://raw.githubusercontent.com/abadeanlou/bikeflow-live/master/data.json";
-    const src = new URLSearchParams(location.search).get("src") || DEFAULT_SRC;
+    // Primary: same-origin data.json written by the pipeline every 5 min.
+    // Fallback: the hourly GitHub archive copy.
+    const PRIMARY_SRC = "data.json";
+    const FALLBACK_SRC = "https://raw.githubusercontent.com/abadeanlou/bikeflow-live/master/data.json";
+    const src = new URLSearchParams(location.search).get("src");
     const RAMP_LIGHT = ["#e8dcc8", "#cdb289", "#ab8a56", "#8a6d3b", "#5f4a26"];
     const RAMP_DARK  = ["#4a3a22", "#6b5433", "#8a6d3b", "#b08f55", "#d4b57e"];
     const ramp = () => document.documentElement.dataset.theme === "dark" ? RAMP_DARK : RAMP_LIGHT;
@@ -120,9 +123,13 @@
     const tooltip = document.getElementById("tooltip");
 
     let data;
-    try {
-      data = await (await fetch(src, { cache: "no-store" })).json();
-    } catch (e) {
+    for (const candidate of src ? [src] : [PRIMARY_SRC, FALLBACK_SRC]) {
+      try {
+        data = await (await fetch(candidate, { cache: "no-store" })).json();
+        break;
+      } catch (e) { /* try next source */ }
+    }
+    if (!data) {
       document.getElementById("updated").textContent = "Could not load data — try again shortly.";
       return;
     }
@@ -130,8 +137,8 @@
     const genMs = data.generated_at * 1000;
     const fmt = ts => new Date(ts).toISOString().slice(11, 16) + " UTC";
     document.getElementById("updated").textContent =
-      "Last updated " + new Date(genMs).toISOString().replace("T", " ").slice(0, 16) + " UTC · refreshes hourly";
-    if (Date.now() - genMs > 2 * 3600e3) document.getElementById("stale").style.display = "block";
+      "Last updated " + new Date(genMs).toISOString().replace("T", " ").slice(0, 16) + " UTC · refreshes every 5 minutes";
+    if (Date.now() - genMs > 30 * 60e3) document.getElementById("stale").style.display = "block";
 
     const cities = Object.entries(data.cities).filter(([, c]) => c.stations > 0);
     const bikesNow = cities.reduce((s, [, c]) => s + c.latest.reduce((a, e) => a + e.bikes, 0), 0);
