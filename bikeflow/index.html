@@ -99,10 +99,12 @@
     <div id="cities"></div>
 
     <footer>
-      <p>Every 3 minutes, a collector on a GCP VM polls the public GBFS feeds of
+      <p>Every minute, a collector on a GCP VM polls the public GBFS feeds of
       <strong>BikeMi (Milan)</strong> and <strong>Vélib' (Paris)</strong> into partitioned Parquet.
       Apache Airflow compacts each finished day, backs everything up to Cloud Storage,
-      watches freshness, and publishes this page's data hourly. Built by
+      watches freshness, trains nightly forecasts, rebuilds the
+      <a href="dbt/">dbt&nbsp;+&nbsp;DuckDB analytics marts</a>, and publishes this
+      page's data every 5 minutes. Built by
       <a href="https://abadeanlou.com/">Amirhesam Badeanlou</a> as a fully open,
       end-to-end data engineering project.</p>
     </footer>
@@ -167,6 +169,52 @@
       if (withCoords.length > 10) sec.appendChild(mapPanel(key, withCoords));
       sec.appendChild(dataTable(c.series_24h));
       citiesEl.appendChild(sec);
+    }
+
+    if (data.history) citiesEl.appendChild(historySection(data.history));
+
+    function historySection(history) {
+      const sec = document.createElement("section");
+      sec.className = "city";
+      sec.innerHTML = `<h2>Daily history</h2>
+        <p class="legend-note">Nightly aggregates from the dbt&nbsp;+&nbsp;DuckDB marts —
+        <a href="dbt/">explore the transformation layer →</a></p>`;
+      for (const [key, rows] of Object.entries(history)) {
+        if (rows.length >= 2) sec.appendChild(historyChart(rows, CITY_NAMES[key] || key));
+      }
+      if (!sec.querySelector("svg")) {
+        sec.insertAdjacentHTML("beforeend",
+          '<p class="legend-note">Charts appear once two days of history exist.</p>');
+      }
+      return sec;
+    }
+
+    function historyChart(rows, title) {
+      const p = panel(`${title} <small>· daily average bikes &amp; utilization</small>`);
+      const W = 900, H = 220, M = { l: 44, r: 52, t: 12, b: 24 };
+      const bikes = rows.map(r => r.avg_bikes);
+      const utils = rows.map(r => r.util);
+      const bMin = Math.min(...bikes), bMax = Math.max(...bikes);
+      const X = i => M.l + (W - M.l - M.r) * (rows.length === 1 ? 0.5 : i / (rows.length - 1));
+      const Yb = v => H - M.b - (H - M.t - M.b) * ((v - bMin) / Math.max(1, bMax - bMin));
+      const Yu = v => H - M.b - (H - M.t - M.b) * v;
+      const bPts = rows.map((_, i) => `${X(i).toFixed(1)},${Yb(bikes[i]).toFixed(1)}`).join(" ");
+      const uPts = rows.map((_, i) => `${X(i).toFixed(1)},${Yu(utils[i]).toFixed(1)}`).join(" ");
+      p.insertAdjacentHTML("beforeend", `
+        <svg viewBox="0 0 ${W} ${H}" role="img"
+             aria-label="Daily average bikes and utilization for ${title}">
+          <line class="grid-line" x1="${M.l}" y1="${H - M.b}" x2="${W - M.r}" y2="${H - M.b}"/>
+          <polyline class="series" points="${bPts}"/>
+          <polyline class="fline" points="${uPts}"/>
+          <text x="${M.l - 4}" y="${M.t + 8}" class="axis-lbl" text-anchor="end">${Math.round(bMax)}</text>
+          <text x="${M.l - 4}" y="${H - M.b}" class="axis-lbl" text-anchor="end">${Math.round(bMin)}</text>
+          <text x="${W - M.r + 4}" y="${M.t + 8}" class="axis-lbl">100%</text>
+          <text x="${W - M.r + 4}" y="${H - M.b}" class="axis-lbl">0%</text>
+          <text x="${M.l}" y="${H - 6}" class="axis-lbl">${rows[0].d}</text>
+          <text x="${W - M.r}" y="${H - 6}" class="axis-lbl" text-anchor="end">${rows[rows.length - 1].d}</text>
+        </svg>
+        <p class="legend-note">solid — avg bikes available (left) · dashed — avg utilization (right, 0–100%)</p>`);
+      return p;
     }
 
     function panel(title) {
