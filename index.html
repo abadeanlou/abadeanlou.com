@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Amirhesam Badeanlou — AI & Data Engineer in Milan. Production machine learning, real-time data pipelines, and geospatial systems for urban mobility.">
-  <title>Amirhesam Badeanlou — AI &amp; Data Engineer</title>
+  <meta name="description" content="Amirhesam Badeanlou — AI, Data & Software Engineer in Milan. I build machine-learning systems, data platforms, and software for the transport sector, backed by transport science and engineering expertise.">
+  <title>Amirhesam Badeanlou — AI, Data &amp; Software Engineer</title>
   <link rel="canonical" href="https://abadeanlou.com/">
 
   <meta property="og:type" content="profile">
-  <meta property="og:title" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
-  <meta property="og:description" content="Production machine learning, real-time data pipelines, and geospatial systems for urban mobility. Based in Milan.">
+  <meta property="og:title" content="Amirhesam Badeanlou — AI, Data &amp; Software Engineer">
+  <meta property="og:description" content="Machine-learning systems, data platforms, and software for the transport sector — built on transport science and engineering expertise. Based in Milan.">
   <meta property="og:url" content="https://abadeanlou.com/">
   <meta property="og:image" content="https://abadeanlou.com/social-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
+  <meta property="og:image:alt" content="Amirhesam Badeanlou — AI, Data &amp; Software Engineer">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Amirhesam Badeanlou — AI &amp; Data Engineer">
-  <meta name="twitter:description" content="Production machine learning, real-time data pipelines, and geospatial systems for urban mobility. Based in Milan.">
+  <meta name="twitter:title" content="Amirhesam Badeanlou — AI, Data &amp; Software Engineer">
+  <meta name="twitter:description" content="Machine-learning systems, data platforms, and software for the transport sector — built on transport science and engineering expertise. Based in Milan.">
   <meta name="twitter:image" content="https://abadeanlou.com/social-card.png">
 
   <script type="application/ld+json">
@@ -25,7 +25,7 @@
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Amirhesam Badeanlou",
-    "jobTitle": "AI & Data Engineer",
+    "jobTitle": "AI, Data & Software Engineer",
     "worksFor": { "@type": "Organization", "name": "CitiEU — CitiME" },
     "address": { "@type": "PostalAddress", "addressLocality": "Milan", "addressCountry": "IT" },
     "alumniOf": [
@@ -55,8 +55,8 @@
     <aside class="sidebar">
       <div class="sidebar-inner">
         <h1>Amirhesam <br>Badeanlou</h1>
-        <p class="tagline">AI &amp; Data Engineer</p>
-        <p class="tagline-sub">Machine learning systems · Data pipelines · Geospatial</p>
+        <p class="tagline">AI, Data &amp; Software Engineer</p>
+        <p class="tagline-sub">Machine learning · Data platforms · Software — for transport &amp; mobility</p>
         <p class="location">Milan, Italy</p>
 
         <div class="theme-switch" role="group" aria-label="Color theme">
@@ -89,16 +89,29 @@
       <section id="about">
         <h2>About</h2>
         <p>
-          I build production machine-learning and data systems: forecasting models,
-          real-time pipelines, and the cloud platforms that run them. At CitiEU &mdash; CitiME in
-          Milan I built and operate a traffic-forecasting platform end to end &mdash;
-          a LightGBM system predicting travel times up to 4 hours ahead, a real-time
-          ingestion layer processing ~27M rows/day into TimescaleDB, and LLM-generated
-          reporting &mdash; deployed on GCP with CI/CD.
+          I am an AI, data, and software engineer &mdash; and an enthusiast who builds
+          end to end: machine-learning systems, real-time data platforms, APIs, and the
+          cloud infrastructure that runs them. At CitiEU &mdash; CitiME in Milan I built
+          and operate a traffic-forecasting platform &mdash; a LightGBM system predicting
+          travel times up to 4 hours ahead, a real-time ingestion layer processing
+          ~27M rows/day into TimescaleDB, and LLM-generated reporting &mdash; deployed
+          on GCP with CI/CD.
         </p>
         <p>
-          Before that, I researched public transit equity at Institut Polytechnique
-          de Paris, published as first author at hEART 2022 and TRB 2023.
+          What sets me apart is the domain underneath: transport science and
+          engineering. I have built four-step demand models, migrated production
+          CUBE models, and published first-author research on transit accessibility
+          equity (hEART 2022, TRB 2023) &mdash; so when I build software for mobility,
+          I understand both the code and the traffic behind it.
+        </p>
+        <p>
+          That combination is exactly where I want to work: as an AI, data, and
+          software developer in the transport sector. Most of what I build is public
+          and running &mdash; a <a href="https://abadeanlou.com/bikeflow/">live forecasting
+          pipeline</a>, a <a href="https://abadeanlou.com/four-step/">travel demand model
+          for Milan</a>, a <a href="https://abadeanlou.com/routing-engine/">routing
+          engine</a>, and <a href="https://abadeanlou.com/accessibility/">transit
+          accessibility maps for seven cities</a>.
         </p>
       </section>
 
@@ -169,12 +182,42 @@
           <article class="project">
             <h3>bikeflow</h3>
             <p class="project-org">Personal project · <a href="https://abadeanlou.com/bikeflow/" target="_blank" rel="noopener">live dashboard →</a></p>
-            <p>Open, end-to-end data pipeline collecting real-time bike-share availability
-              for Milan and Paris (GBFS): Dockerized collector on a GCP VM, Airflow 3
-              orchestration (compaction, GCS backups, freshness alarms), CI, and an
-              hourly-published public dashboard. Built as the open counterpart to my
-              production work &mdash; LightGBM forecasting layer in progress.</p>
-            <p class="tags"><span>Airflow</span><span>Docker</span><span>GCP</span><span>Parquet</span><span>GitHub Actions</span></p>
+            <p>Open, end-to-end ML pipeline on live bike-share data for Milan and Paris:
+              per-minute GBFS collection, Airflow 3 orchestration, nightly LightGBM
+              forecasts with conformal uncertainty bands, dbt + DuckDB analytics marts
+              with a <a href="https://abadeanlou.com/bikeflow/dbt/" target="_blank" rel="noopener">published
+              docs site</a>, and a fact-checked AI daily brief (Claude) &mdash; all feeding
+              a dashboard that refreshes every 5 minutes, 24/7 on a GCP VM.</p>
+            <p class="tags"><span>Airflow</span><span>LightGBM</span><span>dbt</span><span>DuckDB</span><span>Anthropic API</span><span>Docker</span><span>GCP</span></p>
+          </article>
+
+          <article class="project">
+            <h3>Four-Step Travel Demand Model</h3>
+            <p class="project-org">Personal project · <a href="https://abadeanlou.com/four-step/" target="_blank" rel="noopener">interactive maps →</a> · <a href="https://github.com/abadeanlou/four-step-model" target="_blank" rel="noopener">code →</a></p>
+            <p>The classical transport-planning model built from scratch for Milan on open
+              data: OSM road network, gravity distribution, mode choice on real GTFS transit
+              times, user-equilibrium assignment (MSA + BPR), and an Area-C-style
+              through-traffic-ban scenario with relocation maps.</p>
+            <p class="tags"><span>Python</span><span>OSMnx</span><span>SciPy</span><span>GTFS</span><span>GeoPandas</span></p>
+          </article>
+
+          <article class="project">
+            <h3>Routing Engine</h3>
+            <p class="project-org">Personal project · <a href="https://abadeanlou.com/routing-engine/" target="_blank" rel="noopener">live demo →</a> · <a href="https://github.com/abadeanlou/routing-engine-osmnx" target="_blank" rel="noopener">code →</a></p>
+            <p>Production-shaped FastAPI service computing shortest paths on real OSM street
+              networks &mdash; preloaded frozen Milan graph, dependency-injected strategies,
+              tested and containerized, serving live requests from this domain.</p>
+            <p class="tags"><span>FastAPI</span><span>OSMnx</span><span>NetworkX</span><span>Docker</span></p>
+          </article>
+
+          <article class="project">
+            <h3>Transit Accessibility Maps</h3>
+            <p class="project-org">Research code · <a href="https://abadeanlou.com/accessibility/" target="_blank" rel="noopener">live maps →</a> · <a href="https://github.com/abadeanlou/Accessibility-using-Transit" target="_blank" rel="noopener">code →</a></p>
+            <p>Interactive public-transport accessibility maps for seven European cities,
+              computed from GTFS timetables and population grids &mdash; the modern successor
+              to my published equity research, with Gini, Theil, Atkinson, and Palma
+              equity metrics.</p>
+            <p class="tags"><span>Python</span><span>GTFS</span><span>MongoDB</span><span>OSRM</span></p>
           </article>
 
           <article class="project">
@@ -227,7 +270,7 @@
           </div>
           <div class="skill-group">
             <dt>Data Engineering</dt>
-            <dd><span>PostgreSQL</span><span>TimescaleDB</span><span>Real-time ingestion</span><span>ETL/ELT</span><span>REST APIs</span><span>MongoDB</span><span>SQLite</span></dd>
+            <dd><span>PostgreSQL</span><span>TimescaleDB</span><span>Airflow</span><span>dbt</span><span>DuckDB</span><span>Real-time ingestion</span><span>ETL/ELT</span><span>REST APIs</span><span>MongoDB</span></dd>
           </div>
           <div class="skill-group">
             <dt>Cloud &amp; DevOps</dt>
@@ -239,7 +282,7 @@
           </div>
           <div class="skill-group">
             <dt>Geospatial &amp; Visualisation</dt>
-            <dd><span>MapLibre GL</span><span>QGIS</span><span>ArcGIS</span><span>GTFS</span><span>Dashboards</span></dd>
+            <dd><span>MapLibre GL</span><span>OSMnx</span><span>NetworkX</span><span>QGIS</span><span>ArcGIS</span><span>GTFS</span><span>Dashboards</span></dd>
           </div>
           <div class="skill-group">
             <dt>Transport Modelling (domain)</dt>
