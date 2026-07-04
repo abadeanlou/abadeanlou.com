@@ -74,6 +74,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
     .crosshair { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; display: none; }
     .legend-note { font-family: var(--sans); font-size: 0.7rem; color: var(--faint); margin-top: 0.6rem; }
+    .brief { margin: 0.4rem 0 0.4rem 1.2rem; }
+    .brief li { margin-bottom: 0.35rem; }
     .ramp { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
       margin: 0 2px -1px 6px; border: 1px solid var(--border); }
     details { margin-top: 0.8rem; font-family: var(--sans); font-size: 0.75rem; }
@@ -156,6 +158,24 @@
       `<div class="tile"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join("");
 
     const citiesEl = document.getElementById("cities");
+
+    if (data.brief) {
+      // LLM-generated text — escape before it touches innerHTML.
+      const esc = s => String(s).replace(/[&<>"']/g,
+        c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const sec = document.createElement("section");
+      sec.className = "city";
+      sec.innerHTML = `<h2>Daily brief</h2>
+        <div class="panel">
+          <h3>${esc(data.brief.headline)} <small>· ${esc(data.brief.date)}</small></h3>
+          <ul class="brief">${(data.brief.bullets || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+          <p class="legend-note">Written nightly by Claude (${esc(data.brief.model)}) from the
+          dbt marts — every number is programmatically fact-checked against the data before
+          publishing; a failed check means no brief.</p>
+        </div>`;
+      citiesEl.parentNode.insertBefore(sec, citiesEl);
+    }
+
     for (const [key, c] of cities) {
       const sec = document.createElement("section");
       sec.className = "city";
