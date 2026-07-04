@@ -113,10 +113,8 @@
 
   <script>
   (async function () {
-    // Primary: same-origin data.json written by the pipeline every 5 min.
-    // Fallback: the hourly GitHub archive copy.
+    // Same-origin data.json, written by the pipeline every 5 min.
     const PRIMARY_SRC = "data.json";
-    const FALLBACK_SRC = "https://raw.githubusercontent.com/abadeanlou/bikeflow-live/master/data.json";
     const src = new URLSearchParams(location.search).get("src");
     const RAMP_LIGHT = ["#e8dcc8", "#cdb289", "#ab8a56", "#8a6d3b", "#5f4a26"];
     const RAMP_DARK  = ["#4a3a22", "#6b5433", "#8a6d3b", "#b08f55", "#d4b57e"];
@@ -125,7 +123,7 @@
     const tooltip = document.getElementById("tooltip");
 
     let data;
-    for (const candidate of src ? [src] : [PRIMARY_SRC, FALLBACK_SRC]) {
+    for (const candidate of src ? [src] : [PRIMARY_SRC]) {
       try {
         data = await (await fetch(candidate, { cache: "no-store" })).json();
         break;
