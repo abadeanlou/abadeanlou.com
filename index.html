@@ -108,8 +108,9 @@
           That combination is exactly where I want to work: as an AI, data, and
           software developer in the transport sector. Most of what I build is public
           and running &mdash; a <a href="https://abadeanlou.com/bikeflow/">live forecasting
-          pipeline</a>, a <a href="https://abadeanlou.com/four-step/">travel demand model
-          for Milan</a>, a <a href="https://abadeanlou.com/routing-engine/">routing
+          pipeline</a>, an <a href="https://abadeanlou.com/transit-agent/">AI agent you can
+          ask about Milan mobility data</a>, a <a href="https://abadeanlou.com/four-step/">travel
+          demand model for Milan</a>, a <a href="https://abadeanlou.com/routing-engine/">routing
           engine</a>, and <a href="https://abadeanlou.com/accessibility/">transit
           accessibility maps for seven cities</a>.
         </p>
@@ -189,6 +190,17 @@
               docs site</a>, and a fact-checked AI daily brief (Claude) &mdash; all feeding
               a dashboard that refreshes every 5 minutes, 24/7 on a GCP VM.</p>
             <p class="tags"><span>Airflow</span><span>LightGBM</span><span>dbt</span><span>DuckDB</span><span>Anthropic API</span><span>Docker</span><span>GCP</span></p>
+          </article>
+
+          <article class="project">
+            <h3>transit-copilot</h3>
+            <p class="project-org">Personal project · <a href="https://abadeanlou.com/transit-agent/" target="_blank" rel="noopener">ask it live →</a> · <a href="https://github.com/abadeanlou/transit-copilot" target="_blank" rel="noopener">code →</a></p>
+            <p>A glass-box AI agent over Milan transit schedules and the live bikeflow
+              warehouse: it writes and runs read-only SQL and shows every query next to
+              the answer. Claude tool-use loop, MCP server, published eval suite (12/12),
+              and hard cost guardrails &mdash; per-IP rate limits plus a persisted daily
+              token budget with a cached-replay fallback.</p>
+            <p class="tags"><span>LLM agents</span><span>Anthropic API</span><span>MCP</span><span>DuckDB</span><span>FastAPI</span><span>Evals</span></p>
           </article>
 
           <article class="project">
